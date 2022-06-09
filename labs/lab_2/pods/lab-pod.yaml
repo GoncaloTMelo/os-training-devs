@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: lab-pod
+  labels:
+    app: lab-pod
+spec:
+  containers:
+  - env:
+    - name: MESSAGE
+      value: Lab_1 Message Updated
+    image: quay.io/practicalopenshift/hello-world
+    imagePullPolicy: Always
+    name: lab-0
+    resources: {}
