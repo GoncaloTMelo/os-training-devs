@@ -1,0 +1,1 @@
+oc delete all -l app=hello-world-pod

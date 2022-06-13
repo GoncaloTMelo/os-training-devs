@@ -273,10 +273,557 @@ exit
 ```
  oc rollout latest dc/hello-world
 ```
+### Cancel ongoing rollout
+```
+ oc rollout cancel dc/hello-world
+```
 
 ### Roll back to the previous version of the application
 ```
  oc rollback dc/hello-world
+```
+
+# Networking.Cheatsheet
+### Get service documentation
+
+### Access oc explain documentation
+```
+ oc explain service
+```
+
+### Get more information about Service's spec
+```
+ oc explain service.spec
+```
+
+### Get YAML definition for a service
+```
+ oc get -o yaml service/hello-world
+```
+
+### Get YAML definition for a route
+```
+ oc get -o yaml route/hello-world
+```
+
+
+### Creating services
+
+### Create a service for a single pod
+```
+ oc expose --port 8080 pod/hello-world-pod
+```
+
+### Create a service for a DeploymentConfig 
+```
+ oc expose --port 8080 dc/hello-world
+```
+
+### Check that the service and pod are connected properly
+```
+ oc status
+```
+
+
+### Using Pod environment variables to find service Virtual IPs
+
+### Inside the pod, get all environment variables
+env
+
+### Use the environment variables with wget
+wget -qO- $HELLO_WORLD_POD_PORT_8080_TCP_ADDR:$HELLO_WORLD_POD_PORT_8080_TCP_PORT
+
+
+### Creating Routes
+
+### Create a Route based on a Service
+```
+ oc expose svc/hello-world
+```
+
+### Get the Route URL
+```
+ oc status
+```
+
+### Check the route
+curl <route from oc status>
+
+
+
+# ConfigMaps.Cheatsheet
+## Creating ConfigMaps
+
+## Create a ConfigMap using literal command line arguments
+```
+ oc create configmap <configmap-name> --from-literal KEY="VALUE"
+```
+
+## Create from a file
+```
+ oc create configmap <configmap-name> --from-file=MESSAGE.txt
+```
+
+## Create from a file with a key override
+```
+ oc create configmap <configmap-name> --from-file=MESSAGE=MESSAGE.txt
+```
+
+## Same --from-file but with a directory
+```
+ oc create configmap <configmap-name> --from-file pods
+```
+
+## Verify
+```
+ oc get -o yaml configmap/<configmap-name>
+```
+
+
+## Consuming ConfigMaps as Environment Variables
+
+## Set environment variables (same for all types of ConfigMap)
+```
+ oc set env dc/hello-world --from cm/<configmap-name>
+```
+
+# Secretes.Cheatsheet
+## Creating Secrets
+
+## Create a simple generic (Opaque) Secret
+```
+ oc create secret generic <secret-name> --from-literal KEY="VALUE"
+```
+## Create a simple generic (Opaque) Secret from file
+```
+ oc create secret generic <secret-name> --from-file=<file_or_dir_path>
+```
+
+## Check the Secret
+```
+ oc get -o yaml secret/<secret-name>
+```
+
+
+## Consume the Secret as Environment Variables
+
+## Almost the same as ConfigMaps
+```
+ oc set env dc/<dc-name> --from secret/<secret-name>
+```
+
+# Images.Cheatsheet
+## Create ImageStreams
+
+## Create the ImageStream (but don't deploy yet)
+```
+ oc import-image --confirm <image tag>
+```
+
+## Example with this course's image
+```
+ oc import-image --confirm quay.io/practicalopenshift/hello-world
+```
+
+## Importing any new images
+```
+ oc import-image --confirm quay.io/practicalopenshift/hello-world
+```
+
+
+## Importing extra ImageStreamTags for an existing ImageStream
+
+## oc tag syntax
+```
+ oc tag <original> <destination>
+```
+
+## Example
+```
+ oc tag quay.io/image-name:tag image-name:tag
+```
+
+
+## Check the current ImageStreams and ImageStreamTags
+
+## List ImageStreams
+```
+ oc get is
+```
+
+## List tags
+```
+ oc get istag
+```
+
+
+## Use the ImageStream with oc new-app
+
+## Deploy an application based on your new ImageStream
+```
+ oc new-app myproject/hello-world
+```
+
+
+## Creating and pushing a private image
+## These require signing up for a Quay.io account and pushing a private image
+
+## Remote Tag syntax
+<host name>/<your username>/<image name>
+
+## Building an image with a remote tag
+docker build -t quay.io/$REGISTRY_USERNAME/private-repo .
+
+## Log into a registry
+docker login <hostname>
+
+## Log into quay.io
+docker login quay.io
+
+## Push (send) an image to a remote registry
+docker push <remote tag>
+
+## Push the image to Quay
+docker push quay.io/$REGISTRY_USERNAME/private-repo
+
+
+## Use Private images with OpenShift
+
+## You may need to run this command 
+source credentials.env
+
+## Create a Docker registry secret
+```
+ oc create secret docker-registry \
+```
+  <secret name> \
+  --docker-server=$REGISTRY_HOST \
+  --docker-username=$REGISTRY_USERNAME \
+  --docker-password=$REGISTRY_PASSWORD \
+  --docker-email=$REGISTRY_EMAIL
+
+## A touch of secrets magic
+## This command links the secret to the service account named "default"
+```
+ oc secrets link default <secret name> --for=pull
+```
+
+## Check that the service account has the secret associated
+```
+ oc describe serviceaccount/default
+```
+
+## Once authentication is set up, start the application 
+```
+ oc new-app quay.io/$REGISTRY_USERNAME/private-repo
+```
+
+# Builds.Cheatsheet
+
+## Creating new BuildConfigs
+
+## Create a new BuildConfig from a Git repository URL
+```
+ oc new-build <Git URL>
+```
+
+## Example
+```
+ oc new-build https://gitlab.com/practical-openshift/hello-world.git
+```
+
+## Start a new build from the update-message branch
+```
+ oc new-build https://gitlab.com/practical-openshift/hello-world.git#update-message
+```
+
+## Use --context-dir to build from a subdirectory
+```
+ oc new-build https://gitlab.com/practical-openshift/labs.git --context-dir hello-world
+```
+
+
+## Working with existing BuildConfigs
+
+## Start a build
+```
+ oc start-build bc/hello-world
+```
+
+## Get logs for a single build
+```
+ oc logs -f build/hello-world-1
+```
+
+## Get logs for the latest build for a BuildConfig
+## This is the best way (usually)
+```
+ oc logs -f bc/hello-world
+```
+
+## Cancel a running build
+```
+ oc cancel-build bc/hello-world
+```
+
+## Get more information about the build
+```
+ oc get -o yaml buildconfig/hello-world
+```
+
+## See builds that have run
+```
+ oc get build
+```
+
+## Start a build for an existing BuildConfig
+```
+ oc start-build bc/hello-world
+```
+
+
+## Set build hooks
+
+## Set a post-commit hook
+```
+ oc set build-hook bc/hello-world \
+  --post-commit \
+  --script="echo Hello from build hook"
+```
+
+## Check the logs output for "Hello from build hook"
+```
+ oc logs -f bc/hello-world
+```
+
+## Set a failing build hook to observe the behavior
+```
+ oc set build-hook bc/hello-world \
+  --post-commit \
+  --script="exit 1"
+```
+
+## Check the events to see if it ran
+```
+ oc get events
+```
+
+## Remove the build hook
+```
+ oc set build-hook bc/hello-world \
+  --post-commit \
+  --remove
+```
+
+## See all of your pods
+```
+ oc get pods
+```
+
+
+## Working with WebHooks
+
+## Get the secret token
+```
+ oc get -o yaml buildconfig/hello-world
+```
+
+## Export the secret as a variable
+export GENERIC_SECRET=<generic token from previous command>
+
+## Get the webhook URL
+```
+ oc describe buildconfig/hello-world
+```
+
+## Copy the webhook URL and replace <secret> with $GENERIC_SECRET
+curl -X POST -k <webhook URL with secret replaced with $GENERIC_SECRET>
+
+
+# S2I.Cheatsheet
+## Use S2I in a build
+## The syntax is the same as normal Builds. OpenShift uses S2I when there is no Dockerfile
+
+## oc new-app works with S2I 
+```
+ oc new-app <Git URL with no Dockerfile>
+```
+
+## oc new-build works with S2I 
+```
+ oc new-build <Git URL with no Dockerfile>
+```
+
+## Example: build the s2i/ruby directory of the labs project
+```
+ oc new-app https://gitlab.com/practical-openshift/labs.git \
+  --context-dir s2i/ruby
+```
+
+
+## Specifying a builder image
+```
+ oc new-app builder-image~<Git URL>
+```
+
+## Example: Deploy with the ruby image explicitly declared
+```
+ oc new-app \
+  ruby~https://gitlab.com/practical-openshift/labs.git \
+  --context-dir s2i/ruby
+```
+
+
+## Overriding S2I Scripts
+## Assemble and Run are the two main scripts
+## Overrides go in your source at .s2i/bin/assemble or .s2i/bin/run
+## They need to call the original scripts, which are usually at /usr/libexec/s2i/assemble or /usr/libexec/s2i/run
+
+# Volumes.Cheatsheet
+## Mount an emptyDir volume
+
+## Main syntax
+```
+ oc set volume dc/<dc name> --add --type emptyDir --mount-path <path inside container>
+```
+
+## Example:Add an emptyDir volume
+```
+ oc set volume dc/hello-world \
+```
+  --add \
+  --type emptyDir \
+  --mount-path /empty-dir-demo
+
+
+## Mount ConfigMaps as volumes
+
+## Main command
+```
+ oc set volume <DC name> --add --configmap-name <configmap name> --mount-path <path inside container>
+```
+
+## Example: Create the configmap to use as a Volume
+```
+ oc create configmap cm-volume \
+  --from-literal file.txt="ConfigMap file contents"
+```
+
+## Example: Mount the ConfigMap
+```
+ oc set volume dc/hello-world \
+  --add \
+  --configmap-name cm-volume \
+  --mount-path /cm-directory
+```
+
+
+## Using other Volume Suppliers
+## There are a wide variety of suppliers
+## oc explain and the online documentation are both very helpful
+
+## The official Kubernetes Documentation for Volumes
+https://kubernetes.io/docs/concepts/storage/volumes/
+
+## Check out the built-in documentation
+```
+ oc explain persistentvolume.spec
+```
+
+
+
+# ADC.CheatSheet
+## Trigger management
+## Both ImageChange and ConfigChange triggers are enabled by default
+
+## List triggers
+```
+ oc set triggers dc/<dc name>
+```
+
+## Remove the ConfigChange trigger
+```
+ oc set triggers dc/<dc name> \
+  --remove
+  --from-config
+```
+
+## Re-add the ConfigChange trigger
+```
+ oc set triggers dc/<dc name> --from-config
+```
+
+## Remove the ImageChange trigger
+```
+ oc set triggers dc/<dc name> \
+  --remove \
+  --from-image <image name>:<tag>
+```
+
+## Re-add the ImageChange trigger
+## You need to pick a container in your pod spec that corresponds to the image in --from-image
+```
+ oc set triggers dc/<dc name> \
+  --from-image <image name>:<tag> \
+  -c <container name>
+```
+
+
+## Deployment Hooks
+
+## General syntax
+```
+ oc set deployment-hook dc/<dc name> \
+  (--pre, --post, or --mid) \
+  -c <container name to execute hook in>
+  -- <command to execute for the hook>
+```
+
+## Example: Add a simple deployment hook
+```
+ oc set deployment-hook dc/hello-world --pre -c hello-world -- /bin/echo Hello from pre-deploy hook
+```
+
+## Check the hook in the DeploymentConfig definition
+```
+ oc describe dc/hello-world
+```
+
+
+## Switching to the Recreate Strategy
+## No oc set deployment-strategy as of writing, so you'll need to manually update the resource definition
+
+## Start editing the DeploymentConfig
+```
+ oc edit dc/hello-world
+```
+
+## To change to Recreate, switch the spec.strategy to be:
+```
+  strategy:
+    type: Recreate
+```
+
+## Readiness and Liveness probes
+
+## General syntax
+```
+ oc set probe dc/<dc name> (--liveness or --readiness) (--open-tcp, --get-url, or -- for a command)
+```
+
+## Example: Add a liveness probe that opens TCP port 8080 for its test
+```
+ oc set probe dc/hello-world --liveness --open-tcp=8080
+```
+
+## Example: Add a readiness probe that requests localhost port 8080 with the path /health/readiness for its test
+```
+ oc set probe dc/hello-world --readiness --get-url=http://:8080/health/readiness
+```
+
+## Example: Add a readiness probe that runs "exit 0" inside the container as its test
+```
+ oc set probe dc/hello-world --readiness -- exit 0
 ```
 
 

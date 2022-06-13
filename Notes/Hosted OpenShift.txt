@@ -12,7 +12,6 @@ If you are using Hosted OpenShift for this course, there are a couple difference
 Your username is your RedHat username. However, Hosted OpenShift does not support username / password login. You'll need to get the token from the web console to log in to Hosted OpenShift.
 
 
-
 ## Projects
 
 
