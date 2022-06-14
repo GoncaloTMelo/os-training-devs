@@ -827,3 +827,182 @@ https://kubernetes.io/docs/concepts/storage/volumes/
 ```
 
 
+# Scaling.CheatSheet
+## Manual Scaling
+
+## General Syntax
+```
+ oc scale dc/<dc name> --replicas=<desired replicas>
+```
+
+## Example: Manual scale to 3 pods
+```
+ oc scale dc/hello-world --replicas=3
+```
+
+## Example: Scale back down to one
+```
+ oc scale dc/hello-world --replicas=1
+```
+
+
+## Autoscaling
+
+## General Syntax to create a HorizontalPodAutoscaler (HPA)
+```
+ oc autoscale dc/<dc name> \
+  --min <desired minimum pods> \
+  --max <desired maximum pods> \
+  --cpu-percent=<desiredTargetCPU>
+```
+
+## Example of scaling Hello World between 1 and 10 pods with an 80% CPU target
+```
+ oc autoscale dc/hello-world \
+  --min 1 \
+  --max 10 \
+  --cpu-percent=80
+```
+
+## Check the HPA
+```
+ oc get hpa
+```
+
+## More information on the HPA
+```
+ oc describe hpa/hello-world
+```
+
+## Get the YAML for the HPA
+```
+ oc get -o yaml hpa/hello-world
+```
+
+
+# Templates.CheatSheet
+## Manage templates as OpenShift resources
+
+## Create the template from the file
+```
+ oc create -f template/hello-world-template.yaml
+```
+
+## Check the template
+```
+ oc get template
+```
+
+## Create an application based on the template
+```
+ oc new-app hello-world
+```
+
+
+## Set parameter values
+
+```
+ oc new-app hello-world \
+  -p MESSAGE="Hello from parameter override."
+```
+
+
+## Process templates
+
+## Basic processing (gives you JSON)
+```
+ oc process hello-world
+```
+
+## Get the processed results in YAML
+```
+ oc process hello-world -o yaml
+```
+
+## With parameters
+```
+ oc process hello-world -o yaml \
+  -p MESSAGE="Hello from oc process"
+```
+
+## Save the processed template to a file
+```
+ oc process hello-world -o yaml \
+  -p MESSAGE="Hello from oc process" \
+  > processed-objects.yaml
+```
+
+## Check the file
+head processed-objects.yaml
+
+## Create the objects
+```
+ oc create -f processed-objects.yaml
+```
+
+
+
+## Use a template file
+
+```
+ oc process -o yaml -f <template file>
+```
+
+## Use a file-based template
+```
+ oc process -o yaml \
+  -f template/hello-world-template.yaml
+```
+
+## Example with oc new-app and a parameter
+```
+ oc new-app \
+  -f template/hello-world-template.yaml
+  -p MESSAGE="Hello from oc new-app with a file"
+```
+
+
+## Creating your own Template
+
+## Get YAML for existing objects on the OpenShift server
+## The dc,is... syntax lists the types of resources that you would like to export
+## Add hpa or any other type if you need them
+```
+ oc get -o yaml dc,is,bc,svc,route --export
+```
+
+## Save output to a file
+```
+ oc get -o yaml dc,is,bc,svc,route \
+  --export \
+  > test-template.yaml
+```
+
+## Open it up in your favorite text editor
+vi test-template.yaml
+
+Steps for a custom template:
+1. Change the items property to objects
+2. Change kind from List to Template
+3. Add a name property to the metadata section
+4. Remove status from each resource
+5. Remove most of metadata except for name, labels, and annotations
+6. Remove any automatically-assigned resources such as service Virtual IPs and Route hosts
+7. (optional) Add template parameters 
+
+## Example parameter definition
+```
+- description: Message to respond to requests with
+  displayName: Message
+  name: MESSAGE
+  required: false
+  value: Hello from the default value for the template
+```
+## Using the parameter in your template YAML
+```
+          env:
+            - name: MESSAGE
+              # This syntax copies the template parameter value as a YAML string
+              value: ${MESSAGE}
+```
+
