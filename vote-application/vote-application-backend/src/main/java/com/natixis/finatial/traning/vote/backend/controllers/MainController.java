@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MainController {
     private final VoteService voteService;
-
+    @GetMapping()
+    public String home() {
+        return "\"api-home\"";
+    }
     @GetMapping("ping")
-    public String send() {
+    public String ping() {
         return "\"pong\"";
     }
 
