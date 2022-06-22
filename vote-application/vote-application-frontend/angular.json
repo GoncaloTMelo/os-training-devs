@@ -74,6 +74,9 @@
             },
             "development": {
               "browserTarget": "vote-application-frontend:build:development"
+            },
+            "options": {
+              "proxyConfig": "conf/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

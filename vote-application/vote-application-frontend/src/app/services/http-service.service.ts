@@ -8,18 +8,19 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class HttpServiceService {
-
+  apiEndpoint: string = "/api";
   constructor(private http: HttpClient) {
-    console.log(environment.BACKEND);
+    // this.backend = environment.BACKEND;
+    console.log(this.apiEndpoint);
   }
 
   ping() {
-    return this.http.get(environment.BACKEND + "/ping");
+    return this.http.get(this.apiEndpoint + "/ping");
   }
   vote(user: string, id: number): Observable<String> {
     var form = new FormData();
     form.append('key', user);
     form.append('value', id.toString());
-    return this.http.post<String>(`${environment.BACKEND}/vote`, form);
+    return this.http.post<String>(`${this.apiEndpoint}/vote`, form);
   }
 }

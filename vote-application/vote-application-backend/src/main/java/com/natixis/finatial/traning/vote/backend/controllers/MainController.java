@@ -5,13 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*")
-@RestController("/")
+@RestController
+@RequestMapping("api")
 @RequiredArgsConstructor
 public class MainController {
     private final VoteService voteService;
     @GetMapping()
     public String home() {
-        return "\"api-home\"";
+        return "\"home\"";
     }
     @GetMapping("ping")
     public String ping() {
