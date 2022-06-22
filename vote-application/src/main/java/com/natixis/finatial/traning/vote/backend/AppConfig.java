@@ -30,12 +30,13 @@ public class AppConfig {
     @Bean
     public void createTopicIfDoesntExist() {
         Properties properties = baseConfig();
+        log.debug("Admin Properties{" + properties + "}");
         try (AdminClient admin = AdminClient.create(properties)) {
             boolean topicExists = admin.listTopics().names().get().stream().anyMatch(topicName -> topicName.equalsIgnoreCase(topic));
             if (!topicExists) {
                 log.info("Topic " + topic + " does not exist, creating it.");
                 admin.createTopics(Arrays.asList(newTopic()));
-            }else
+            } else
                 log.info("Topic " + topic + " already exists.");
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
@@ -57,14 +58,17 @@ public class AppConfig {
     @Bean
     public Properties baseConfig() {
         Properties properties = new Properties();
+        log.info("Connecting to bootstrap servers: [" + bootstrap + "]");
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
         return properties;
     }
+
     @Bean
     public Properties kafkaProducerConfig() {
         Properties properties = baseConfig();
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        log.debug("Producer Properties{" + properties + "}");
         return properties;
     }
 
