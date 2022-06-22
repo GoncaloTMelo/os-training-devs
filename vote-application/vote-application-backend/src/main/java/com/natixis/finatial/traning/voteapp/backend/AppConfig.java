@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
@@ -35,27 +37,36 @@ public class AppConfig {
         return new KafkaAdmin(Map.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap));
     }
 
-    @Bean
-    public void createTopicIfDoesntExist() {
+    public void createTopicIfDoesntExist(NewTopic topic) {
+        createTopicIfDoesntExist(Arrays.asList(topic));
+    }
+
+    public void createTopicIfDoesntExist(List<NewTopic> topics) {
         Properties properties = baseConfig();
+
         log.debug("Admin Properties{" + properties + "}");
         try (AdminClient admin = AdminClient.create(properties)) {
-            boolean topicExists = admin.listTopics().names().get().stream().anyMatch(topicName -> topicName.equalsIgnoreCase(topic));
-            if (!topicExists) {
-                log.info("Topic " + topic + " does not exist, creating it.");
-                admin.createTopics(Arrays.asList(newTopic()));
+            Set<String> existingTopic = admin.listTopics().names().get();
+            List<NewTopic> topicExists = topics.stream().filter(t -> existingTopic.contains(t.name())).collect(Collectors.toList());
+            if (topicExists.size() > 0) {
+                log.info("Topics " + topics.stream().map(t -> t.name()).collect(Collectors.toList()) + " do not exist, creating them.");
+                admin.createTopics(topicExists);
             } else
-                log.info("Topic " + topic + " already exists.");
+                log.info("Topics " + topics.stream().map(t -> t.name()).collect(Collectors.toList()) + " already exist, skipping them.");
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+    @Bean
+    public void createTopicIfDoesntExist() {
+        createTopicIfDoesntExist(newTopic());
+    }
 
     @Bean
     public NewTopic newTopic() {
-        return TopicBuilder.name(topic).partitions(3).build();
+        return TopicBuilder.name(topic).partitions(3).config(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_COMPACT).build();
     }
 
     @Bean

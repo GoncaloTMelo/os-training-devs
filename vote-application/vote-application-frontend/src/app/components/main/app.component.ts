@@ -64,10 +64,7 @@ export class AppComponent {
 
   }
   findColor(index: number): string {
-    let currentIndex = index;
-    while (currentIndex >= this.colorArray.length)
-      currentIndex = currentIndex - this.colorArray.length
-    return this.colorArray[currentIndex];
+    return this.colorArray[index % this.colorArray.length];
   }
 
   vote(option: VotingOption): void {
@@ -80,7 +77,7 @@ export class AppComponent {
     console.log(`User ${this.userName} is voting for: ${JSON.stringify(option)}`);
     this.httpService.vote(userName, option.id).subscribe({
       next: (v: String) => console.log(v),
-      error: (e: HttpErrorResponse) => {console.error(e); alert(e.message)},
+      error: (e: HttpErrorResponse) => { console.error(e); alert(e.message) },
       complete: () => console.info('complete')
     });
   }
