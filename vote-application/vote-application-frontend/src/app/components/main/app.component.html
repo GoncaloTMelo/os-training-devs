@@ -9,7 +9,7 @@
       <input matInput placeholder="Ex. Neo" [(ngModel)]="userName">
     </mat-form-field>
 
-    <div class="voting-button-div">
+    <div class="full-width voting-button-div">
       <button mat-raised-button *ngFor="let option of options; let i = index" (click)="vote(option)" [class]="findColor(i)">{{option.label}}</button>
     </div>
   </mat-card-content>

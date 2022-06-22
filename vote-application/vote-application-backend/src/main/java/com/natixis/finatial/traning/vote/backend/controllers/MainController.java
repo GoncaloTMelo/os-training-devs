@@ -17,7 +17,7 @@ public class MainController {
 
     @GetMapping("ping")
     public String send() {
-        return "pong";
+        return "\"pong\"";
     }
 
     @GetMapping("send/{value}")
