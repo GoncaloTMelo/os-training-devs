@@ -21,6 +21,7 @@ public class KafkaProducerService {
     String topic;
 
 
+
     public void send(String message) {
         send(null, message);
     }
