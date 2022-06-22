@@ -1,3 +1,4 @@
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { HttpServiceService } from 'src/app/services/http-service.service';
 
@@ -77,5 +78,10 @@ export class AppComponent {
     }
     userName = this.userName.trim();
     console.log(`User ${this.userName} is voting for: ${JSON.stringify(option)}`);
+    this.httpService.vote(userName, option.id).subscribe({
+      next: (v: String) => console.log(v),
+      error: (e: HttpErrorResponse) => {console.error(e); alert(e.message)},
+      complete: () => console.info('complete')
+    });
   }
 }

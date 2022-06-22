@@ -14,6 +14,12 @@ export class HttpServiceService {
   }
 
   ping() {
-    return this.http.get(environment.BACKEND+"/ping");
+    return this.http.get(environment.BACKEND + "/ping");
+  }
+  vote(user: string, id: number): Observable<String> {
+    var form = new FormData();
+    form.append('key', user);
+    form.append('value', id.toString());
+    return this.http.post<String>(`${environment.BACKEND}/vote`, form);
   }
 }
