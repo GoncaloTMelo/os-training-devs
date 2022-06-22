@@ -1,0 +1,16 @@
+<mat-card class="voting-card">
+  <mat-card-header>
+    <mat-card-title>Vote for your favorite __blank__</mat-card-title>
+    <mat-card-subtitle>The winner will win __blank__$</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field class="full-width" appearance="fill">
+      <mat-label>Username</mat-label>
+      <input matInput placeholder="Ex. Neo" [(ngModel)]="userName">
+    </mat-form-field>
+
+    <div class="voting-button-div">
+      <button mat-raised-button *ngFor="let option of options; let i = index" (click)="vote(option)" [class]="findColor(i)">{{option.label}}</button>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -75,6 +77,8 @@ public class AppConfig {
         log.debug("Producer Properties{" + properties + "}");
         return properties;
     }
+
+
 
 
 }
