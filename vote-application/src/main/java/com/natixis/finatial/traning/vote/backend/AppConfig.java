@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.KafkaAdmin;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +27,11 @@ public class AppConfig {
 
     @Value("${kafka.topic:vote.input}")
     String topic;
+
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        return new KafkaAdmin(Map.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap));
+    }
 
     @Bean
     public void createTopicIfDoesntExist() {
@@ -55,10 +61,8 @@ public class AppConfig {
         return new KafkaProducer<>(kafkaProducerConfig());
     }
 
-    @Bean
     public Properties baseConfig() {
         Properties properties = new Properties();
-        log.info("Connecting to bootstrap servers: [" + bootstrap + "]");
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
         return properties;
     }
