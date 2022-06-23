@@ -1,11 +1,10 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { HttpServiceService } from 'src/app/services/http-service.service';
+import { Observable } from 'rxjs';
+import { BackendService } from 'src/app/services/backend.service';
+import { DatabaseService } from 'src/app/services/database.service';
+import { Answer } from 'src/app/structures';
 
-interface VotingOption {
-  id: number,
-  label: string
-}
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -13,7 +12,7 @@ interface VotingOption {
 })
 export class AppComponent {
   title = 'vote-application-frontend';
-  options: VotingOption[] = [
+  options: Answer[] = [
     {
       id: 0,
       label: "Teste_0"
@@ -47,6 +46,7 @@ export class AppComponent {
       label: "Teste_7"
     }
   ];
+  optionsObservable: Observable<Answer[]>
   colorArray: string[] = [
     "color-0",
     "color-1",
@@ -59,15 +59,16 @@ export class AppComponent {
 
   userName: string = "";
 
-  constructor(private httpService: HttpServiceService) {
-    this.httpService.ping().subscribe((body) => console.log(body));
+  constructor(private backendService: BackendService, private databaseService: DatabaseService) {
+    this.backendService.ping().subscribe((body) => console.log(body));
+    this.optionsObservable = databaseService.getAllQuestions(); 
 
   }
   findColor(index: number): string {
     return this.colorArray[index % this.colorArray.length];
   }
 
-  vote(option: VotingOption): void {
+  vote(option: Answer): void {
     let userName;
     if (!this.userName || this.userName.trim().length == 0) {
       alert("No Username inserted");
@@ -75,7 +76,7 @@ export class AppComponent {
     }
     userName = this.userName.trim();
     console.log(`User ${this.userName} is voting for: ${JSON.stringify(option)}`);
-    this.httpService.vote(userName, option.id).subscribe({
+    this.backendService.vote(userName, option.id).subscribe({
       next: (v: String) => console.log(v),
       error: (e: HttpErrorResponse) => { console.error(e); alert(e.message) },
       complete: () => console.info('complete')

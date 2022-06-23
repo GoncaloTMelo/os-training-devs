@@ -10,7 +10,7 @@
     </mat-form-field>
 
     <div class="full-width voting-button-div">
-      <button mat-raised-button *ngFor="let option of options; let i = index" (click)="vote(option)" [class]="findColor(i)">{{option.label}}</button>
+      <button mat-raised-button *ngFor="let option of optionsObservable | async; let i = index" (click)="vote(option)" [class]="findColor(i)">{{option.label}}</button>
     </div>
   </mat-card-content>
 </mat-card>

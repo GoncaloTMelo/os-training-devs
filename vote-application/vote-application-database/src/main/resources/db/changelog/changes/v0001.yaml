@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Goncalo
+      changes:
+        - createTable:
+            tableName: answers
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(255)
+        - insert:
+            columns:
+              - column:
+                  name: label
+                  value: Answer 1
+            tableName: answers
+        - insert:
+            columns:
+              - column:
+                  name: label
+                  value: Answer 2
+            tableName: answers
+        - insert:
+            columns:
+              - column:
+                  name: label
+                  value: Answer 3
+            tableName: answers
+        - insert:
+            columns:
+              - column:
+                  name: label
+                  value: Answer 4
+            tableName: answers
+        - insert:
+            columns:
+              - column:
+                  name: label
+                  value: Answer 5
+            tableName: answers
+        - insert:
+            columns:
+              - column:
+                  name: label
+                  value: Answer 6
+            tableName: answers
+
