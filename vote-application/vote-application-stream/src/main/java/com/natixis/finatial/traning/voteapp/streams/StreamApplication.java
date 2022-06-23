@@ -49,6 +49,8 @@ public class StreamApplication {
 
     private Properties getConfig(String s) {
         Properties config = new Properties();
+        if (BOOTSTRAP_SERVER == null)
+            throw new RuntimeException("KAFKA_BOOTSTRAP environment variable not set.");
         config.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
         config.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVER);
         config.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
