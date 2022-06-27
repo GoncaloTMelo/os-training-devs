@@ -4,7 +4,7 @@ RUN  confluent-hub install --no-prompt hpgrahsl/kafka-connect-mongodb:1.1.0
 
 RUN mkdir -pm 755 /home/appuser/scripts
 
-COPY --chmod=0755 entrypoint.sh /home/appuser/scripts
+ADD --chmod=0755 entrypoint.sh /
 
 
-CMD ["bash","-c","\"/etc/confluent/docker/run & sleep infinity\""]
+CMD ["bash","-c","\"/entrypoint.sh\""]
