@@ -7,4 +7,4 @@ RUN mkdir -pm 755 /home/appuser/scripts
 COPY --chmod=0755 entrypoint.sh /home/appuser/scripts
 
 
-CMD ["bash","-c","\"/home/appuser/scripts/entrypoint.sh\""]
+CMD ["bash","-c","\"/etc/confluent/docker/run & sleep infinity\""]
