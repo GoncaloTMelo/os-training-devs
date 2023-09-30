@@ -1,0 +1,162 @@
+warning: Cannot check if git requires authentication.
+apiVersion: v1
+items:
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-backend
+        app.kubernetes.io/component: vote-application-backend
+        app.kubernetes.io/instance: vote-application-backend
+      name: vote-application-backend
+    spec:
+      lookupPolicy:
+        local: false
+    status:
+      dockerImageRepository: ""
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-backend
+        app.kubernetes.io/component: vote-application-backend
+        app.kubernetes.io/instance: vote-application-backend
+      name: vote-application-backend
+    spec:
+      nodeSelector: null
+      output:
+        to:
+          kind: ImageStreamTag
+          name: vote-application-backend:latest
+      postCommit: {}
+      resources: {}
+      source:
+        contextDir: vote-application/vote-application-backend
+        git:
+          uri: https://github.com/GoncaloTMelo/os-training-devs.git
+        type: Git
+      strategy:
+        sourceStrategy:
+          from:
+            kind: ImageStreamTag
+            name: java:openjdk-17-ubi8
+            namespace: openshift
+        type: Source
+      triggers:
+        - github:
+            secret: XYDbEnnCfZGfBUUXgY6e
+          type: GitHub
+        - generic:
+            secret: v2BNwfgc4IFLfV_rK5ER
+          type: Generic
+        - type: ConfigChange
+        - imageChange: {}
+          type: ImageChange
+    status:
+      lastVersion: 0
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-backend
+        app.kubernetes.io/component: vote-application-backend
+        app.kubernetes.io/instance: vote-application-backend
+        app.kubernetes.io/part-of: vote-application
+      name: vote-application-backend
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: vote-application-backend
+      strategy:
+        resources: {}
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            deploymentconfig: vote-application-backend
+        spec:
+          containers:
+            - env:
+                - name: kafka.bootstrap
+                  value: kafka:9092
+              image: vote-application-backend:latest
+              name: vote-application-backend
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+                - containerPort: 8443
+                  protocol: TCP
+              resources: {}
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - vote-application-backend
+            from:
+              kind: ImageStreamTag
+              name: vote-application-backend:latest
+          type: ImageChange
+    status:
+      availableReplicas: 0
+      latestVersion: 0
+      observedGeneration: 0
+      replicas: 0
+      unavailableReplicas: 0
+      updatedReplicas: 0
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-backend
+        app.kubernetes.io/component: vote-application-backend
+        app.kubernetes.io/instance: vote-application-backend
+      name: vote-application-backend
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+        - name: 8443-tcp
+          port: 8443
+          protocol: TCP
+          targetPort: 8443
+      selector:
+        deploymentconfig: vote-application-backend
+    status:
+      loadBalancer: {}
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      annotations:
+        openshift.io/host.generated: "true"
+      labels:
+        app: vote-application-backend
+        app.kubernetes.io/component: vote-application-backend
+        app.kubernetes.io/instance: vote-application-backend
+      name: vote-application-backend
+    spec:
+      port:
+        targetPort: 8080-tcp
+      to:
+        kind: Service
+        name: vote-application-backend
+status: {}
+kind: List
+metadata: {}

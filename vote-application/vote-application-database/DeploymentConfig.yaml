@@ -1,0 +1,171 @@
+warning: Cannot check if git requires authentication.
+apiVersion: v1
+items:
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-database
+        app.kubernetes.io/component: vote-application-database
+        app.kubernetes.io/instance: vote-application-database
+      name: vote-application-database
+    spec:
+      lookupPolicy:
+        local: false
+    status:
+      dockerImageRepository: ""
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-database
+        app.kubernetes.io/component: vote-application-database
+        app.kubernetes.io/instance: vote-application-database
+      name: vote-application-database
+    spec:
+      nodeSelector: null
+      output:
+        to:
+          kind: ImageStreamTag
+          name: vote-application-database:latest
+      postCommit: {}
+      resources: {}
+      source:
+        contextDir: vote-application/vote-application-database
+        git:
+          uri: https://github.com/GoncaloTMelo/os-training-devs.git
+        type: Git
+      strategy:
+        sourceStrategy:
+          from:
+            kind: ImageStreamTag
+            name: java:openjdk-17-ubi8
+            namespace: openshift
+        type: Source
+      triggers:
+        - github:
+            secret: ewffqlU46CrwjI4hJwct
+          type: GitHub
+        - generic:
+            secret: uqT8FsFDI72mS9eNZ3Uo
+          type: Generic
+        - type: ConfigChange
+        - imageChange: {}
+          type: ImageChange
+    status:
+      lastVersion: 0
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-database
+        app.kubernetes.io/component: vote-application-database
+        app.kubernetes.io/instance: vote-application-database
+        app.kubernetes.io/part-of: vote-application
+      name: vote-application-database
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: vote-application-database
+      strategy:
+        resources: {}
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            deploymentconfig: vote-application-database
+        spec:
+          containers:
+            - env:
+                - name: SPRING_DATASOURCE_URL
+                  value: jdbc:mysql://mysql:3306/voteapp
+                - name: SPRING_DATASOURCE_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-env
+                      key: MYSQL_USER
+                - name: SPRING_DATASOURCE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-env
+                      key: MYSQL_PASSWORD
+              image: vote-application-database:latest
+              name: vote-application-database
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+                - containerPort: 8443
+                  protocol: TCP
+              resources: {}
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - vote-application-database
+            from:
+              kind: ImageStreamTag
+              name: vote-application-database:latest
+          type: ImageChange
+    status:
+      availableReplicas: 0
+      latestVersion: 0
+      observedGeneration: 0
+      replicas: 0
+      unavailableReplicas: 0
+      updatedReplicas: 0
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: vote-application-database
+        app.kubernetes.io/component: vote-application-database
+        app.kubernetes.io/instance: vote-application-database
+      name: vote-application-database
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+        - name: 8443-tcp
+          port: 8443
+          protocol: TCP
+          targetPort: 8443
+      selector:
+        deploymentconfig: vote-application-database
+    status:
+      loadBalancer: {}
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      annotations:
+        openshift.io/host.generated: "true"
+      labels:
+        app: vote-application-database
+        app.kubernetes.io/component: vote-application-database
+        app.kubernetes.io/instance: vote-application-database
+      name: vote-application-database
+    spec:
+      port:
+        targetPort: 8080-tcp
+      to:
+        kind: Service
+        name: vote-application-database
+kind: List
+metadata: {}
