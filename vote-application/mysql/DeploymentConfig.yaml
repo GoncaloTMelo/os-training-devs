@@ -1,0 +1,103 @@
+apiVersion: v1
+stringData: 
+  MYSQL_USER: toor
+  MYSQL_PASSWORD: root
+  MYSQL_DATABASE: voteapp
+
+kind: Secret
+metadata:
+  name: mysql-env
+---
+apiVersion: v1
+items:
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: mysql
+        app.kubernetes.io/component: mysql
+        app.kubernetes.io/instance: mysql
+        app.kubernetes.io/part-of: vote-application
+      name: mysql
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: mysql
+      strategy:
+        resources: {}
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            deploymentconfig: mysql
+        spec:
+          containers:
+            - resources: {}
+              name: mysql
+              env:
+                - name: MYSQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-env
+                      key: MYSQL_USER
+                - name: MYSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-env
+                      key: MYSQL_PASSWORD
+                - name: MYSQL_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-env
+                      key: MYSQL_DATABASE
+              image: image-registry.openshift-image-registry.svc:5000/openshift/mysql:8.0-el8
+              ports:
+                - containerPort: 3306
+                  protocol: TCP
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - mysql
+            from:
+              kind: ImageStreamTag
+              name: mysql:8.0-el8
+              namespace: openshift
+          type: ImageChange
+    status:
+      availableReplicas: 0
+      latestVersion: 0
+      observedGeneration: 0
+      replicas: 0
+      unavailableReplicas: 0
+      updatedReplicas: 0
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: mysql
+        app.kubernetes.io/component: mysql
+        app.kubernetes.io/instance: mysql
+      name: mysql
+    spec:
+      ports:
+        - name: 3306-tcp
+          port: 3306
+          protocol: TCP
+          targetPort: 3306
+      selector:
+        deploymentconfig: mysql
+    status:
+      loadBalancer: {}
+kind: List
+metadata: {}

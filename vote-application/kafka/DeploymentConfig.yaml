@@ -37,6 +37,7 @@ items:
       app: kafka
       app.kubernetes.io/component: kafka
       app.kubernetes.io/instance: kafka
+      app.kubernetes.io/part-of: vote-application
     name: kafka
   spec:
     replicas: 1
