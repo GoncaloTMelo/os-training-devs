@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  BACKEND: "https://vote-app-backend:8080"
+  BACKEND: $ENV.BACKEND_ENDPOINT,
+  DATABASE: $ENV.DATABASE_ENDPOINT
 };

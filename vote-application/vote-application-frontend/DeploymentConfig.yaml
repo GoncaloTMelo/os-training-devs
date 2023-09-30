@@ -1,0 +1,144 @@
+apiVersion: v1
+items:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-application-frontend
+      app.kubernetes.io/component: vote-application-frontend
+      app.kubernetes.io/instance: vote-application-frontend
+    name: nginx-unprivileged
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: nginxinc/nginx-unprivileged
+      from:
+        kind: DockerImage
+        name: nginxinc/nginx-unprivileged
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+  status:
+    dockerImageRepository: ""
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-application-frontend
+      app.kubernetes.io/component: vote-application-frontend
+      app.kubernetes.io/instance: vote-application-frontend
+    name: vote-application-frontend
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: ""
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-application-frontend
+      app.kubernetes.io/component: vote-application-frontend
+      app.kubernetes.io/instance: vote-application-frontend
+    name: vote-application-frontend
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: vote-application-frontend:latest
+    postCommit: {}
+    resources: {}
+    source:
+      contextDir: /vote-application/vote-application-frontend
+      git:
+        uri: https://github.com/GoncaloTMelo/os-training-devs.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: nginx-unprivileged:latest
+      type: Docker
+    triggers:
+    - github:
+        secret: CCrzHqSc4cEvlifMwI6H
+      type: GitHub
+    - generic:
+        secret: MWXfiNRY6T_jLWnzxL-y
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"vote-application-frontend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"vote-application-frontend\")].image"}]'
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-application-frontend
+      app.kubernetes.io/component: vote-application-frontend
+      app.kubernetes.io/instance: vote-application-frontend
+    name: vote-application-frontend
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        deployment: vote-application-frontend
+    strategy: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          deployment: vote-application-frontend
+      spec:
+        containers:
+        - image: ' '
+          name: vote-application-frontend
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+  status: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-application-frontend
+      app.kubernetes.io/component: vote-application-frontend
+      app.kubernetes.io/instance: vote-application-frontend
+    name: vote-application-frontend
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deployment: vote-application-frontend
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}

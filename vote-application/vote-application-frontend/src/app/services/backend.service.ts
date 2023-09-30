@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ import { Observable } from 'rxjs';
 export class BackendService {
   apiEndpoint: string = "/api";
   constructor(private http: HttpClient) {
-    // this.backend = environment.BACKEND;
+    this.apiEndpoint = environment.BACKEND;
     console.log(this.apiEndpoint);
   }
 

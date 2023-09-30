@@ -1,11 +1,6 @@
-declare var process: Process;
+declare var $ENV: Env;
 
-interface Process {
-  env: Env
-}
 interface Env {
-  BACKEND_ENDPOINT: string
-}
-interface GlobalEnvironment {
-  process: Process
+  BACKEND_ENDPOINT: string;
+  DATABASE_ENDPOINT: string;
 }

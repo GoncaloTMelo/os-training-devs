@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  BACKEND: "http://localhost:8080"
+  BACKEND: "/api",
+  DATABASE: "/db"
 };
 
 /*

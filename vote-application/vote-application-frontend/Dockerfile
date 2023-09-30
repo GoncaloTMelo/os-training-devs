@@ -16,6 +16,14 @@ RUN npm install
 #### copy things
 COPY . .
 
+ARG BACKEND_ENDPOINT=/api
+ARG DATABASE_ENDPOINT=/db
+
+# ARG BACKEND_ENDPOINT=/api
+
+ENV BACKEND_ENDPOINT=$BACKEND_ENDPOINT
+ENV DATABASE_ENDPOINT=$DATABASE_ENDPOINT
+
 #### generate build --prod
 RUN npm run build
 
